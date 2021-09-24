@@ -2,7 +2,7 @@ fs = require('fs');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 var randomColor = require('randomcolor');
-
+const sharp = require("sharp")
 const colorNames = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink']
 
 random1To = (number) => {
@@ -53,15 +53,29 @@ function generateCactus(name){
                 original.window.document.getElementById(`Ornament-${ornamenIndex}`).remove()  
             }
         }
-        fs.writeFileSync(`./images/${name}.svg`, original.serialize())
+        const svgData = original.serialize().replace(/<body>|<\/body>|<head>|<\/head>|<html>|<\/html>/g,'')
+        fs.writeFileSync(`./images/svg/${name}.svg`, svgData)
     } catch (err) {
         console.error(err)
       }
 }
 
+function convertSvgToPng(name){
+    sharp(`images/svg/${name}.svg`)
+    .png()
+    .toFile(`images/png/${name}.png`)
+    .then(function(info) {
+      console.log(info)
+    })
+    .catch(function(err) {
+      console.log(err)
+    })
+}
+
 function main(){
     for (let index = 1; index <= 100; index++) {
         generateCactus(`Cactus${index}`)
+        convertSvgToPng(`Cactus${index}`)
     }
 }
 
